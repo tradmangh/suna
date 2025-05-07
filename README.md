@@ -2,6 +2,8 @@
 
 # Suna - Open Source Generalist AI Agent
 
+**Forked and modified to provide a one-command, fully automated setup with a self-hosted Supabase container.**
+
 (that acts on your behalf)
 
 ![Suna Screenshot](frontend/public/banner.png)
@@ -137,140 +139,32 @@ You'll need the following components:
 
 ### Installation Steps
 
-1. **Clone the repository**:
-```bash
-git clone https://github.com/kortix-ai/suna.git
-cd suna
-```
+1. Ensure you have Docker and Docker Compose installed.
 
-2. **Configure backend environment**:
-```bash
-cd backend
-cp .env.example .env  # Create from example if available, or use the following template
-```
+2. Copy environment templates:
 
-Edit the `.env` file and fill in your credentials:
-```bash
-NEXT_PUBLIC_URL="http://localhost:3000"
+   ```bash
+   cp .env.example .env        # for backend
+   cp frontend/.env.example frontend/.env.local  # for frontend
+   ```
 
-# Supabase credentials from step 1
-SUPABASE_URL=your_supabase_url
-SUPABASE_ANON_KEY=your_supabase_anon_key
-SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+3. Start all services (Supabase, Redis, Backend, Frontend, Migrations):
 
-# Redis credentials from step 2
-REDIS_HOST=your_redis_host
-REDIS_PORT=6379
-REDIS_PASSWORD=your_redis_password
-REDIS_SSL=True  # Set to False for local Redis without SSL
+   ```bash
+   docker compose up --build
+   ```
 
-# Daytona credentials from step 3
-DAYTONA_API_KEY=your_daytona_api_key
-DAYTONA_SERVER_URL="https://app.daytona.io/api"
-DAYTONA_TARGET="us"
+   This will:
+   - Launch a local Supabase instance (CLI container) on ports 54321, 8000–8002
+   - Run `supabase db push --yes` to apply all migrations
+   - Start Redis on port 6379
+   - Build and run the Backend API on port 8000
+   - Build and run the Frontend on port 3000
 
-# Anthropic
-ANTHROPIC_API_KEY=
+4. Access Suna:
 
-# OpenAI API:
-OPENAI_API_KEY=your_openai_api_key
-
-# Optional but recommended
-TAVILY_API_KEY=your_tavily_api_key  # For enhanced search capabilities
-FIRECRAWL_API_KEY=your_firecrawl_api_key  # For web scraping capabilities
-RAPID_API_KEY=
-```
-
-3. **Set up Supabase database**:
-```bash
-# Login to Supabase CLI
-supabase login
-
-# Link to your project (find your project reference in the Supabase dashboard)
-supabase link --project-ref your_project_reference_id
-
-# Push database migrations
-supabase db push
-```
-
-Then, go to the Supabase web platform again -> choose your project -> Project Settings -> Data API -> And in the "Exposed Schema" add "basejump" if not already there
-
-4. **Configure frontend environment**:
-```bash
-cd ../frontend
-cp .env.example .env.local  # Create from example if available, or use the following template
-```
-
-   Edit the `.env.local` file:
-```
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-NEXT_PUBLIC_BACKEND_URL="http://localhost:8000/api"  # Use this for local development
-NEXT_PUBLIC_URL="http://localhost:3000"
-```
-
-   Note: If you're using Docker Compose, use the container name instead of localhost:
-```
-NEXT_PUBLIC_BACKEND_URL="http://backend:8000/api"  # Use this when running with Docker Compose
-```
-
-5. **Install dependencies**:
-```bash
-# Install frontend dependencies
-cd frontend
-npm install
-
-# Install backend dependencies
-cd ../backend
-pip install -r requirements.txt
-```
-
-6. **Start the application**:
-
-   In one terminal, start the frontend:
-```bash
-cd frontend
-npm run dev
-```
-
-   In another terminal, start the backend:
-```bash
-cd backend
-python api.py
-```
-
-5-6. **Docker Compose Alternative**:
-
-Before running with Docker Compose, make sure your environment files are properly configured:
-- In `backend/.env`, set all the required environment variables as described above
-  - For Redis configuration, use `REDIS_HOST=redis` instead of localhost
-  - The Docker Compose setup will automatically set these Redis environment variables:
-    ```
-    REDIS_HOST=redis
-    REDIS_PORT=6379
-    REDIS_PASSWORD=
-    REDIS_SSL=False
-    ```
-- In `frontend/.env.local`, make sure to set `NEXT_PUBLIC_BACKEND_URL="http://backend:8000/api"` to use the container name
-
-Then run:
-```bash
-export GITHUB_REPOSITORY="your-github-username/repo-name"
-docker compose -f docker-compose.ghcr.yaml up
-```
-
-If you're building the images locally instead of using pre-built ones:
-```bash
-docker compose up
-```
-
-The Docker Compose setup includes a Redis service that will be used by the backend automatically.
-
-
-7. **Access Suna**:
-   - Open your browser and navigate to `http://localhost:3000`
-   - Sign up for an account using the Supabase authentication
-   - Start using your self-hosted Suna instance!
+   - Frontend UI: http://localhost:3000
+   - Supabase Studio: http://localhost:54321
 
 ## Acknowledgements
 

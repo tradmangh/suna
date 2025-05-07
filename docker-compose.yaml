@@ -44,5 +44,30 @@ services:
     depends_on:
       - backend
 
+  supabase:
+    image: supabase/cli:latest
+    working_dir: /project
+    volumes:
+      - ./:/project
+      - supabase_data:/project/supabase
+    command: ["supabase", "start", "--no-analytics"]
+    ports:
+      - "54321:54321"
+      - "8000:8000"
+      - "8001:8001"
+      - "8002:8002"
+
+  migrate:
+    image: supabase/cli:latest
+    working_dir: /project
+    volumes:
+      - ./:/project
+      - supabase_data:/project/supabase
+    command: ["supabase", "db", "push", "--yes"]
+    depends_on:
+      supabase:
+        condition: service_started
+
 volumes:
   redis-data:
+  supabase_data:
